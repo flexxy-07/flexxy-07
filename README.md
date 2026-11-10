@@ -2,7 +2,7 @@
 
 # ⚡ नमस्ते (Namaste) — I'm [Sumit Rajput](https://github.com/flexxy-07) 👋
 
-### **AI Engineer · Full-Stack Developer · LLM Applications**
+### **AI Engineer · Full-Stack Developer · Agentic Systems**
 
 <p>
   <a href="https://github.com/flexxy-07">
@@ -30,7 +30,6 @@
 - 💬 **Ask Me About:** Python, FastAPI, React, LLMs, Machine Learning, and system design.
 - 📫 **How to reach me:** [sumitrpt007@gmail.com](mailto:sumitrpt007@gmail.com)
 - ⚡ **Fun Fact:** I love going under the hood to see how complex systems actually operate!
-- 🎓 **Education:** CS Undergraduate at **KIET Group of Institutions**.
 
 ---
 
@@ -59,7 +58,6 @@
 class WhoAmI:
     user = 'Sumit Rajput'
     role = 'AI & Full-Stack Engineer'
-    education = 'Computer Science @ KIET Group of Institutions'
     interests = [
         'Building Full-Stack AI Applications',
         'Agentic Workflows & LLMs',
@@ -80,10 +78,6 @@ class WhoAmI:
 <p align="center">
   <img src="https://github-readme-streak-stats.herokuapp.com/?user=flexxy-07&theme=dark&hide_border=false" alt="GitHub Streak" />
   <img src="https://github-readme-stats.vercel.app/api?username=flexxy-07&show_icons=true&theme=dark&hide_border=false" alt="GitHub Stats" />
-</p>
-
-<p align="center">
-  <img src="./contrib-heatmap.svg" width="888" alt="GitHub contribution heatmap for flexxy-07" />
 </p>
 
 <p align="center">
