@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="490" height="370" viewBox="0 0 490 370" role="img" aria-labelledby="title desc">
+<title id="title">Sumit Rajput — terminal wordmark</title>
+<desc id="desc">A monochrome terminal window with an animated dimensional SUMIT wordmark and AI engineering tagline.</desc>
+<defs>
+  <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#111722"/><stop offset="1" stop-color="#0d1117"/></linearGradient>
+  <linearGradient id="face" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0f3f6"/><stop offset="1" stop-color="#8b949e"/></linearGradient>
+  <style>
+    .terminal { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #7d8590; }
+    .depth { font: 900 82px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 4px; }
+    .face { font: 900 82px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 4px; fill: url(#face); }
+    .sub { font: 600 19px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 5px; fill: #c9d1d9; }
+    .tiny { font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 1.5px; fill: #7d8590; }
+    @keyframes rock { 0%,100% { transform: rotateY(-5deg) rotateX(1deg); } 50% { transform: rotateY(5deg) rotateX(-1deg); } }
+    @keyframes cursor { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+    .rock { transform-origin: 245px 190px; animation: rock 6s ease-in-out infinite; }
+    .cursor { animation: cursor 1s step-end infinite; }
+    @media (prefers-reduced-motion: reduce) { .rock,.cursor { animation: none; } }
+  </style>
+</defs>
+<rect width="490" height="370" rx="14" fill="url(#panel)"/>
+<rect x="1" y="1" width="488" height="368" rx="13" fill="none" stroke="#30363d"/>
+<path d="M1 38H489" stroke="#30363d"/>
+<circle cx="22" cy="20" r="5" fill="#ff5f56"/><circle cx="40" cy="20" r="5" fill="#ffbd2e"/><circle cx="58" cy="20" r="5" fill="#27c93f"/>
+<text class="terminal" x="245" y="25" text-anchor="middle">flexxy-07@github: ~$ whoami</text>
+<g class="rock">
+  <text class="depth" x="245" y="208" text-anchor="middle" fill="#30363d" transform="translate(10 12)">SUMIT</text>
+  <text class="depth" x="245" y="208" text-anchor="middle" fill="#484f58" transform="translate(7 8)">SUMIT</text>
+  <text class="depth" x="245" y="208" text-anchor="middle" fill="#6e7681" transform="translate(3 4)">SUMIT</text>
+  <text class="face" x="245" y="208" text-anchor="middle">SUMIT</text>
+</g>
+<text class="sub" x="245" y="260" text-anchor="middle">RAJPUT</text>
+<text class="tiny" x="245" y="308" text-anchor="middle">LLM APPLICATIONS · AGENTIC SYSTEMS · MEMORY</text>
+<text class="terminal" x="245" y="340" text-anchor="middle">AI ENGINEERING / OPEN SOURCE / EXPERIMENTS<tspan class="cursor"> _</tspan></text>
+</svg>

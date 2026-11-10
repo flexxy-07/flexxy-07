@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="888" height="158" viewBox="0 0 888 158" role="img" aria-labelledby="title desc">
+  <title id="title">flexxy-07 contribution heatmap — awaiting first refresh</title>
+  <desc id="desc">This placeholder is replaced by real per-day GitHub contribution data when the profile workflow runs.</desc>
+  <rect width="888" height="158" rx="8" fill="#0d1117" stroke="#30363d"/>
+  <g fill="#7d8590" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <text x="28" y="39" font-size="13">flexxy-07@github: ~$ ./contributions.sh</text>
+    <text x="28" y="82" font-size="17" fill="#c9d1d9">Run “Update profile art” once to load your real contribution history.</text>
+    <text x="28" y="112" font-size="12">YOUR GITHUB DATA · MONOCHROME SVG · DAILY REFRESH</text>
+  </g>
+</svg>
