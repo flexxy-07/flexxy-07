@@ -8,7 +8,7 @@
   <a href="https://github.com/flexxy-07">
     <img src="https://komarev.com/ghpvc/?username=flexxy-07&label=PROFILE+VIEWS&style=flat-square&color=0e75b6" alt="Profile views" />
   </a>
-  <a href="https://www.linkedin.com/in/sumit-rajput-b72a60328/" target="_blank">
+  <a href="https://www.linkedin.com/in/sumit-rajputx07/" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" />
   </a>
   <a href="mailto:sumitrpt007@gmail.com">
