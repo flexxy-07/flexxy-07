@@ -5,8 +5,7 @@ from __future__ import annotations
 import html
 import re
 import sys
-from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -14,29 +13,107 @@ from urllib.request import Request, urlopen
 
 
 class ContributionParser(HTMLParser):
+    """Parse GitHub's current HTML contribution calendar.
+
+    GitHub renders each day as a <td data-date=... data-level=...> and exposes
+    the exact contribution count in a separate <tool-tip for="cell-id"> tag.
+    Older SVG-style rect.day markup is supported as well.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.days: dict[date, tuple[int, int]] = {}
+        self._cell_ids: dict[str, date] = {}
+        self._explicit_count_days: set[date] = set()
+        self._tooltip_counts: dict[str, int] = {}
+        self._active_tooltip_id: str | None = None
+        self._active_tooltip_text: list[str] = []
+
+    @staticmethod
+    def _safe_int(value: str | None) -> int | None:
+        if value is None:
+            return None
+        try:
+            return int(value.replace(",", "").strip())
+        except (TypeError, ValueError):
+            return None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag.lower() != "rect":
-            return
+        tag = tag.lower()
         values = dict(attrs)
-        raw_date = values.get("data-date")
-        if not raw_date:
+
+        if tag in {"rect", "td"}:
+            raw_date = values.get("data-date")
+            if raw_date:
+                try:
+                    day = date.fromisoformat(raw_date)
+                    level_value = self._safe_int(values.get("data-level"))
+                    if level_value is None:
+                        return
+                    level = max(0, min(level_value, 4))
+                    count_value = self._safe_int(values.get("data-count"))
+                    count = max(0, count_value or 0)
+                    self.days[day] = (level, count)
+                    if count_value is not None:
+                        self._explicit_count_days.add(day)
+                    cell_id = values.get("id")
+                    if tag == "td" and cell_id:
+                        self._cell_ids[cell_id] = day
+                except ValueError:
+                    return
+
+        elif tag == "tool-tip":
+            self._active_tooltip_id = values.get("for")
+            self._active_tooltip_text = []
+
+    def handle_data(self, data: str) -> None:
+        if self._active_tooltip_id:
+            self._active_tooltip_text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() != "tool-tip" or not self._active_tooltip_id:
             return
-        try:
-            day = date.fromisoformat(raw_date)
-            level = int(values.get("data-level") or 0)
-            count = int(values.get("data-count") or 0)
-        except (TypeError, ValueError):
-            return
-        self.days[day] = (max(0, min(level, 4)), max(0, count))
+
+        tooltip_text = " ".join(self._active_tooltip_text)
+        match = re.search(r"\b([\d,]+)\s+contributions?\b", tooltip_text, re.IGNORECASE)
+        if match:
+            self._tooltip_counts[self._active_tooltip_id] = int(match.group(1).replace(",", ""))
+        elif re.search(r"\bno contributions?\b", tooltip_text, re.IGNORECASE):
+            self._tooltip_counts[self._active_tooltip_id] = 0
+
+        self._active_tooltip_id = None
+        self._active_tooltip_text = []
+
+    def finalize(self) -> None:
+        for cell_id, day in self._cell_ids.items():
+            if cell_id in self._tooltip_counts:
+                level, _ = self.days[day]
+                self.days[day] = (level, self._tooltip_counts[cell_id])
+                self._explicit_count_days.add(day)
+
+        # Never silently show zero for active days if GitHub changed tooltip markup.
+        unresolved_active = [
+            day.isoformat()
+            for day, (level, _count) in self.days.items()
+            if level > 0 and day not in self._explicit_count_days
+        ]
+        if unresolved_active:
+            sample = ", ".join(unresolved_active[:3])
+            raise RuntimeError(
+                "GitHub returned active contribution days but their counts could not "
+                f"be read from tooltips (for example: {sample}). The graph was not overwritten."
+            )
 
 
 def get_calendar(username: str) -> dict[date, tuple[int, int]]:
     url = f"https://github.com/users/{username}/contributions"
-    request = Request(url, headers={"User-Agent": "flexxy-07-profile-art/1.0"})
+    request = Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; flexxy-07-profile-art/1.0)",
+            "Accept": "text/html,application/xhtml+xml",
+        },
+    )
     try:
         with urlopen(request, timeout=30) as response:
             page = response.read().decode("utf-8", errors="replace")
@@ -45,12 +122,27 @@ def get_calendar(username: str) -> dict[date, tuple[int, int]]:
 
     parser = ContributionParser()
     parser.feed(page)
+    parser.close()
+
+    # Fallback for GitHub's older SVG calendar markup. It contains real levels;
+    # counts are only accepted when data-count is actually present.
     if not parser.days:
-        # GitHub's accessible labels still expose a date and contribution count if
-        # its SVG markup changes; this fallback keeps the scraper failure explicit.
-        pairs = re.findall(r"data-date=\"(\d{4}-\d{2}-\d{2})\"[^>]*data-level=\"(\d)\"", page)
-        for raw_date, raw_level in pairs:
-            parser.days[date.fromisoformat(raw_date)] = (int(raw_level), 0)
+        pairs = re.findall(
+            r'<(?:td|rect)\b([^>]*data-date="(\d{4}-\d{2}-\d{2})"[^>]*)>',
+            page,
+            re.IGNORECASE,
+        )
+        for attrs_text, raw_date in pairs:
+            level_match = re.search(r'data-level="(\d)"', attrs_text)
+            count_match = re.search(r'data-count="([\d,]+)"', attrs_text)
+            if not level_match:
+                continue
+            count = int(count_match.group(1).replace(",", "")) if count_match else 0
+            parser.days[date.fromisoformat(raw_date)] = (min(int(level_match.group(1)), 4), count)
+            if count_match:
+                parser._explicit_count_days.add(date.fromisoformat(raw_date))
+
+    parser.finalize()
     if not parser.days:
         raise RuntimeError("GitHub returned no contribution-calendar day cells; inspect the upstream HTML markup.")
     return parser.days
@@ -116,7 +208,9 @@ def main() -> int:
     except (RuntimeError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
-    print(f"Wrote {output} using {len(calendar)} contribution days for {username}.")
+    total = sum(count for _, count in calendar.values())
+    active_days = sum(1 for level, _ in calendar.values() if level > 0)
+    print(f"Wrote {output} using {len(calendar)} days, {active_days} active days, and {total} contributions for {username}.")
     return 0
 
 
